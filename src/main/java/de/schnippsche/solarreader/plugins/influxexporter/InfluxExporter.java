@@ -26,22 +26,11 @@ import de.schnippsche.solarreader.backend.connection.network.HttpConnection;
 import de.schnippsche.solarreader.backend.connection.network.HttpConnectionFactory;
 import de.schnippsche.solarreader.backend.exporter.AbstractExporter;
 import de.schnippsche.solarreader.backend.exporter.TransferData;
-import de.schnippsche.solarreader.backend.protocol.KnownProtocol;
-import de.schnippsche.solarreader.backend.provider.SupportedInterface;
 import de.schnippsche.solarreader.backend.singleton.GlobalUsrStore;
-import de.schnippsche.solarreader.backend.table.Table;
-import de.schnippsche.solarreader.backend.table.TableCell;
-import de.schnippsche.solarreader.backend.table.TableColumn;
-import de.schnippsche.solarreader.backend.table.TableColumnType;
-import de.schnippsche.solarreader.backend.table.TableRow;
+import de.schnippsche.solarreader.backend.table.*;
 import de.schnippsche.solarreader.backend.util.JsonTools;
 import de.schnippsche.solarreader.backend.util.Setting;
-import de.schnippsche.solarreader.frontend.ui.HtmlInputType;
-import de.schnippsche.solarreader.frontend.ui.HtmlWidth;
-import de.schnippsche.solarreader.frontend.ui.UIInputElementBuilder;
-import de.schnippsche.solarreader.frontend.ui.UIList;
-import de.schnippsche.solarreader.frontend.ui.UITextElementBuilder;
-import de.schnippsche.solarreader.plugin.PluginMetadata;
+import de.schnippsche.solarreader.frontend.ui.*;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -66,17 +55,10 @@ import org.tinylog.Logger;
  * <p>The InfluxExporter includes support for various configurations, such as setting the host,
  * port, authentication details, database name, and SSL options for the InfluxDB connection.
  */
-@PluginMetadata(
-    name = "InfluxExporter",
-    version = "1.0.1",
-    author = "Stefan Töngi",
-    url = "https://github.com/solarreader-plugins/plugin-InfluxExporter",
-    svgImage = "influx.svg",
-    supportedInterfaces = {SupportedInterface.NONE},
-    usedProtocol = KnownProtocol.HTTP,
-    supports = "Influx V1, V2")
 public class InfluxExporter extends AbstractExporter {
-  /** constant string for dbname */
+  /**
+   * constant string for dbname
+   */
   protected static final String DBNAME = "dbname";
 
   private static final String REQUIRED_ERROR = "influxexporter.required.error";
@@ -87,7 +69,9 @@ public class InfluxExporter extends AbstractExporter {
   private Thread consumerThread;
   private volatile boolean running = true;
 
-  /** Constructs a new InfluxExporter with default configuration. */
+  /**
+   * Constructs a new InfluxExporter with default configuration.
+   */
   public InfluxExporter() {
     this(new HttpConnectionFactory());
   }
@@ -108,7 +92,9 @@ public class InfluxExporter extends AbstractExporter {
     return ResourceBundle.getBundle("influxexporter", locale);
   }
 
-  /** Initializes the influx exporter by starting the consumer thread. */
+  /**
+   * Initializes the influx exporter by starting the consumer thread.
+   */
   @Override
   public void initialize() {
     Logger.debug("initialize influx exporter");
@@ -123,7 +109,9 @@ public class InfluxExporter extends AbstractExporter {
     consumerThread.interrupt();
   }
 
-  /** Shuts down the influx exporter by stopping the consumer thread. */
+  /**
+   * Shuts down the influx exporter by stopping the consumer thread.
+   */
   @Override
   public void addExport(TransferData transferData) {
     if (transferData.getTables().isEmpty()) {
@@ -264,7 +252,9 @@ public class InfluxExporter extends AbstractExporter {
     return new InfluxData().getSetting();
   }
 
-  /** Processes the export queue by taking each entry and exporting it. */
+  /**
+   * Processes the export queue by taking each entry and exporting it.
+   */
   private void processQueue() {
     while (running) {
       try {
@@ -284,7 +274,7 @@ public class InfluxExporter extends AbstractExporter {
    *
    * @param influxData the configuration data for connecting to InfluxDB
    * @return the version of the InfluxDB server
-   * @throws IOException if an I/O error occurs while retrieving the version
+   * @throws IOException          if an I/O error occurs while retrieving the version
    * @throws InterruptedException if the operation is interrupted
    */
   private String getInfluxVersion(InfluxData influxData) throws IOException, InterruptedException {
@@ -305,10 +295,10 @@ public class InfluxExporter extends AbstractExporter {
   /**
    * Creates the request string in the InfluxDB line protocol format from the specified table.
    *
-   * @param table the table containing the data
-   * @param timestampColumn the column containing the timestamp, if any
+   * @param table                   the table containing the data
+   * @param timestampColumn         the column containing the timestamp, if any
    * @param currentTimestampSeconds the current timestamp in seconds
-   * @param builder the StringBuilder to which the request string is appended
+   * @param builder                 the StringBuilder to which the request string is appended
    */
   private void createRequestString(
       Table table,
@@ -346,9 +336,9 @@ public class InfluxExporter extends AbstractExporter {
    * other column types, it formats the result as "columnName=value".
    *
    * @param tableColumn the table column to be processed
-   * @param tableRow the table row containing the data
+   * @param tableRow    the table row containing the data
    * @return the calculated string representation of the column data, or null if the calculated
-   *     string is null
+   * string is null
    */
   private String getCalculatedString(Table table, TableColumn tableColumn, TableRow tableRow) {
     Optional<TableCell> optionalTableCell = table.getTableCell(tableColumn, tableRow);
@@ -376,7 +366,7 @@ public class InfluxExporter extends AbstractExporter {
    * request. If an error occurs during the process, it logs the error and throws an IOException.
    *
    * @param influxData the configuration data for connecting to InfluxDB
-   * @param data the data to be sent to InfluxDB
+   * @param data       the data to be sent to InfluxDB
    * @throws IOException if an I/O error occurs during the request
    */
   private void sendRequest(HttpConnection tempHttpConnection, InfluxData influxData, String data)
@@ -414,8 +404,8 @@ public class InfluxExporter extends AbstractExporter {
    * InfluxDB. If the version is unsupported or unknown, it logs an error and returns null.
    *
    * @param tempHttpConnection the HttpConnection for connecting
-   * @param influxData the configuration data for connecting to InfluxDB
-   * @param data the data to be sent to InfluxDB
+   * @param influxData         the configuration data for connecting to InfluxDB
+   * @param data               the data to be sent to InfluxDB
    * @return the constructed HttpRequest object
    * @throws URISyntaxException if the constructed URL is invalid
    */
@@ -451,7 +441,7 @@ public class InfluxExporter extends AbstractExporter {
    * data to InfluxDB. If the table contains a timestamp column, it uses that; otherwise, it uses
    * the current timestamp. If the table is empty, the export is skipped.
    *
-   * @param table the table containing the data to be exported
+   * @param table         the table containing the data to be exported
    * @param zonedDateTime the timestamp to be used for the data points
    * @throws IOException if an I/O error occurs during the export
    */
@@ -475,7 +465,9 @@ public class InfluxExporter extends AbstractExporter {
         (System.currentTimeMillis() - startTime));
   }
 
-  /** Updates the configuration of the exporter based on the exporter data. */
+  /**
+   * Updates the configuration of the exporter based on the exporter data.
+   */
   protected void updateConfiguration() {
     this.influxData = new InfluxData(exporterData.getSetting());
     httpConnection = connectionFactory.createConnection(exporterData.getSetting());

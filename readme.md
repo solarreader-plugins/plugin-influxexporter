@@ -11,3 +11,9 @@ It supports InfluxDB versions 1.x and 2.0.
 The plugin requires the main project Solarreader-core, which can be found here:
 https://github.com/solarreader-core/solarreader
 
+### ✅ Successfully tested with
+
+| Model         | Version       | Connection |
+|---------------|---------------|------------|
+| InfluxDB      | 1.8           | HTTP       |
+| InfluxDB      | 2.0           | HTTP       |
